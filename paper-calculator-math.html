@@ -10,23 +10,120 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 
 <polymer-element name="paper-calculator-math" attributes="expression result">
-  
+
   <script>
-  
+
     Polymer('paper-calculator-math', {
-      
+
+      dictionary : {
+        'A' : 71.037114,
+        'R' : 156.101111,
+        'N' : 114.042927,
+        'D' : 115.026943,
+        'C' : 103.009185,
+        'E' : 129.042593,
+        'Q' : 128.058578,
+        'G' : 57.021464,
+        'H' : 137.058912,
+        'I' : 113.084064,
+        'L' : 113.084064,
+        'K' : 128.094963,
+        'M' : 131.040485,
+        'F' : 147.068414,
+        'P' : 97.052764,
+        'S' : 87.032028,
+        'T' : 101.047679,
+        'W' : 186.079313,
+        'Y' : 163.06333,
+        'V' : 99.068414,
+        'ALA' : 71.037114,
+        'ARG' : 156.101111,
+        'ASN' : 114.042927,
+        'ASP' : 115.026943,
+        'CYS' : 103.009185,
+        'ELU' : 129.042593,
+        'QLN' : 128.058578,
+        'GLY' : 57.021464,
+        'HIS' : 137.058912,
+        'ILE' : 113.084064,
+        'LEU' : 113.084064,
+        'LYS' : 128.094963,
+        'MET' : 131.040485,
+        'PHE' : 147.068414,
+        'PRO' : 97.052764,
+        'SER' : 87.032028,
+        'THR' : 101.047679,
+        'TRP' : 186.079313,
+        'TYR' : 163.06333,
+        'VAL' : 99.068414,
+        'PEN':  132.0422587,
+        'DHEX': 146.0579088,
+        'HEX' : 162.0528234,
+        'HEXA': 176.032088,
+        'HEXNAC':203.0793725,
+        'KDN':  250.0688674,
+        'NEUAC': 291.0954165,
+        'NEUGC': 307.0903312,
+        'SULF': 79.9568146,
+        'PHOS': 79.96633,
+        'WATER': 18.010565,
+        'H+': 1.00727647,
+        'E-': 0.000548579909
+      },
+
+
       eval: function() {
         var s = this.expression;
-        s = s.replace(/\u00D7/g, '*').replace(/\u00F7/g, '/');
+        s = s.replace(/\u00D7/g, '*')
+                .replace(/\u00F7/g, '/')
+                .replace('H\u20820',"Water");
+        var tokens = new Array();
+        var operators = new Array();
+        var token = "";
+
+        for (var pointer = 0, len = s.length; pointer < len; pointer++) {
+          var char = s[pointer];
+          if(char === "+" || char === "-" || char === "*" || char === "/" ){
+            operators.push(char);
+            if(token) {
+              tokens.push(token);
+            }
+            token = "";
+          } else {
+            token += char;
+          }
+        }
+        tokens.push(token);
+
+
+        var mathExpression = 0;
+        for (var i = 0; i<tokens.length; i++)
+        {
+          mathExpression += this._translateToMass(tokens[i]);
+          if(operators[i]){
+            mathExpression += operators[i];
+          }
+        }
         try {
-          this.result = eval(s);
+          this.result = eval(mathExpression);
         } catch (x) {
           this.result = '?';
         }
+      },
+
+      _translateToMass: function(symbol){
+        var symbolMass = this.dictionary[symbol.toUpperCase()];
+        if(symbolMass){
+          return parseFloat(symbolMass);
+        }
+
+        if(!isNaN(symbol)){
+          return parseFloat(symbol)
+        }
       }
-    
+
     });
-    
+
   </script>
-  
+
 </polymer-element>

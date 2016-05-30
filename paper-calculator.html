@@ -110,18 +110,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         ['7', '4', '1', '.'],
         ['8', '5', '2', '0'],
         ['9', '6', '3', '='],
-        ['DEL', '+', '-', '\u00F7', '\u00D7'],
+        ['DEL', 'CLEAR', '+', '-', '\u00F7', '\u00D7'],
       ],
 
       advancedKeys: [
-        ['2nd', '1/x', 'x!', 'sin', 'sinh', 'EXP'],
-        ['(', 'x\u00B2', '\u221A', 'cos', 'cosh', '\u03A0'],
-        [')', 'x\u00B3', '\u207F \u221Ay', 'tan', 'tanh', 'EE'],
-        ['%', 'y\u207F', 'log', 'ln', 'e\u207F', 'Rand']
+        ['Gly', 'Ala', 'Ser', 'Pro', 'Val', 'Thr'],
+        ['Cys', 'Ile', 'Leu', 'Asn', 'Asp', 'Gln'],
+        ['Lys', 'Glu', 'Met', 'His', 'Phe', 'Arg'],
+        ['Tyr', 'Trp', 'H\u20820', 'H+', 'e-', '']
       ],
-
       modeKeys: [
-        ['Deg', 'Rad', 'func', 'Table', 'Graph', '']
+        ['Hex', 'HexNAc', 'Pen', 'dHex', 'HexA', 'Kdn'],
+        ['NeuAc', 'NeuGc', 'Sulf', 'Phos', 'H+', 'e-']
       ],
 
       errorMsgs: ['error...', 'umm...', ':-('],
@@ -183,9 +183,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       keyTap: function(e) {
         var k = e.detail.key;
-        if (this.modeKeys[0].indexOf(k) < 0) {
-          this.processKey(k);
-        }
+        this.processKey(k);
       },
 
       keyDown: function(e) {
@@ -211,12 +209,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       processKey: function(k) {
         if (this.result && k !== '=') {
-          this.clear();
+          if(!isNaN(k)){
+            this.clear();
+          }else{
+            this.expression = this.result;
+            this.result = "";
+          }
         }
         if (k === '=') {
           this.async(this.eval);
         } else if (k === 'DEL') {
           this.del();
+        } else if (k === 'CLEAR') {
+          this.clear();
         } else {
           this.expression += k;
         }

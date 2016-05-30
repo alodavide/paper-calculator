@@ -67,8 +67,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         'SULF': 79.9568146,
         'PHOS': 79.96633,
         'WATER': 18.010565,
-        'H+': 1.00727647,
-        'E-': 0.000548579909
+        'PROTON': 1.00727647,
+        'ELECTRON': 0.000548579909
       },
 
 
@@ -76,7 +76,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var s = this.expression;
         s = s.replace(/\u00D7/g, '*')
                 .replace(/\u00F7/g, '/')
-                .replace('H\u20820',"Water");
+                .replace('H\u20820',"Water")
+                .replace("H\u207A", 'proton')
+                .replace('e\u207b',"electron");
         var tokens = new Array();
         var operators = new Array();
         var token = "";

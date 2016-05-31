@@ -80,39 +80,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .replace(/\u00F7/g, '/')
                 .replace('H\u20820',"Water")
                 .replace("H\u207A", 'proton')
-                .replace('e\u207b',"electron");
+                .replace('e\u207b',"electron")
+                .replace('h2o',"water");
         var tokens = new Array();
         var operators = new Array();
         var token = "";
 
+        var interpExp = "";
+        var notInterSymbol = "";
         for (var pointer = 0, len = s.length; pointer < len; pointer++) {
           var char = s[pointer];
-          if(char === "+" || char === "-" || char === "*" || char === "/" ){
-            operators.push(char);
-            if(token) {
-              tokens.push(token);
+          if(char === "+" || char === "-" || char === "*" || char === "/" || char === "(" || char === ")" || !isNaN(char) || char ==="." ){
+            if(notInterSymbol){
+              interpExp += this._translateToMass(notInterSymbol);
+              notInterSymbol="";
             }
-            token = "";
-          } else {
-            token += char;
+            interpExp += char;
+          } else{
+            notInterSymbol += char;
           }
         }
-        tokens.push(token);
 
-
-        var mathExpression = 0;
-        for (var i = 0; i<tokens.length; i++)
-        {
-          mathExpression += this._translateToMass(tokens[i]);
-          if(operators[i]){
-            mathExpression += operators[i];
-          }
+        if(notInterSymbol){
+          interpExp += this._translateToMass(notInterSymbol);
         }
+
         try {
-          this.result = eval(mathExpression).toFixed(4);
-          if(this.result === 0){
-            this.result = "zero";
-          }
+          this.result = eval(interpExp).toFixed(4);
         } catch (x) {
           this.result = '?';
         }

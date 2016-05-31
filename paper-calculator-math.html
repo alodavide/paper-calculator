@@ -67,8 +67,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         'SULF': 79.9568146,
         'PHOS': 79.96633,
         'WATER': 18.010565,
+        'H2O': 18.010565,
         'PROTON': 1.00727647,
-        'ELECTRON': 0.000548579909
+        'ELECTRON': 0.000548579909,
+        'ZERO': 0
       },
 
 
@@ -108,6 +110,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         try {
           this.result = eval(mathExpression);
+          if(this.result === 0){
+            this.result = "zero";
+          }
         } catch (x) {
           this.result = '?';
         }
@@ -115,7 +120,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _translateToMass: function(symbol){
         var symbolMass = this.dictionary[symbol.toUpperCase()];
-        if(symbolMass){
+
+        if(symbolMass || symbolMass === 0){
           return parseFloat(symbolMass);
         }
 

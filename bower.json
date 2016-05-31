@@ -1,9 +1,14 @@
 {
   "name": "paper-calculator",
   "private": true,
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ],
   "dependencies": {
     "core-media-query": "Polymer/core-media-query#master",
     "font-roboto": "Polymer/font-roboto#master",
-    "paper-ripple": "Polymer/paper-ripple#master"
+    "paper-ripple": "Polymer/paper-ripple#master",
+    "polymer": "Polymer/polymer#^0.5.0"
   }
 }

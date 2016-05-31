@@ -73,8 +73,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       labelChanged: function() {
-        this.$.keyLabel.classList.toggle('small', this.label === 'DEL');
-        this.$.keyLabel.classList.toggle('small', this.label === 'Clear');
+        this.$.keyLabel.classList.toggle('small', this.label === 'DEL' || this.label === 'Clear');
       },
 
       downAction: function(e) {

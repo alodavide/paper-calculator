@@ -214,13 +214,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       processKey: function(k) {
         if (this.result && k !== '=') {
-          if(!isNaN(k)){
-            this.clear();
-          }else{
-            this.expression = this.result;
+          if( k === "*" || k === "\u00D7" || k === "\u00F7" || k === "-"){
             this.result = "";
+          }else{
+            this.clear();
           }
         }
+
         if (k === '=') {
           this.async(this.eval);
         } else if (k === 'DEL') {

@@ -1,0 +1,284 @@
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
+<link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="paper-calculator-output.html">
+<link rel="import" href="paper-calculator-keypad.html">
+<link rel="import" href="paper-calculator-math.html">
+
+<dom-module id="swissmass-abacus">
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        background-color: #eee;
+        overflow: hidden;
+
+        tab-index : 0;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-touch-callout: none;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      #output {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 38%;
+        z-index: 1;
+      }
+
+      #output.wide {      
+        box-shadow: 0 5px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      #keypad {
+        position: absolute;
+        top: 38%;
+        bottom: 0;
+        width: 100%;
+      }
+
+      #resultInk {
+        position: absolute;
+        border-radius: 50%;
+        -webkit-transform: translateZ(0) scale(0);
+        transform: translateZ(0) scale(0);
+      }
+
+      #resultInk.error {
+        background-color: #f50057;
+      }
+
+      #resultInk.result {
+        background-color: #73daeb;
+      }
+
+      #resultInk.spill {
+        -webkit-transform: translateZ(0) scale(1);
+        transform: translateZ(0) scale(1);
+        -webkit-transition: -webkit-transform 0.38s ease-out;
+        transition: transform 0.38s ease-out;
+      }
+
+    </style>
+
+  <template>
+
+    <div id="resultInk" class$="{{computeSpill(result)}} {{computeError(error)}}"></div>
+
+    <paper-calculator-output id="output" class$="{{computeOutputStyle(wideMatches, wideMode)}}" expression="{{expression}}" result="{{result}}" error="{{error}}"></paper-calculator-output>
+
+    <paper-calculator-keypad id="keypad" wide-mode$="{{computeWidemode(wideMatches, wideMode)}}" standard-keys="{{standardKeys}}" advanced-keys="{{advancedKeys}}" mode-keys="{{modeKeys}}" on-cal-keytap="keyTap"></paper-calculator-keypad>
+
+    <paper-calculator-math id="math" expression="{{expression}}" result="{{result}}" error="{{error}}"></paper-calculator-math>
+
+    <iron-media-query query="(min-width: 800px)" query-matches="{{wideMatches}}"></iron-media-query>
+
+    <iron-a11y-keys id="deleteKey" target="[[target]]" keys="backspace" on-keys-pressed="onDel"></iron-a11y-keys>
+
+    <iron-a11y-keys id="enterKey" target="[[target]]" keys="enter" on-keys-pressed="onEnter"></iron-a11y-keys>
+    <iron-a11y-keys id="clearKey" target="[[target]]" keys="delete" on-keys-pressed="clear"></iron-a11y-keys>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: "swissmass-abacus",
+
+      properties:{
+        expression: {
+          type: String,
+          value: ""
+        },
+
+        error: {
+          type: String,
+          value: ""
+        },
+
+        result: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: 'resultChanged'
+        },
+
+        wideMode:{
+          type: Boolean,
+          value: false
+        },
+
+        standardKeys:{
+          type: Array,
+          value: function() {
+            return [
+              ['7', '4', '1', '.','('],
+              ['8', '5', '2', '0',''],
+              ['9', '6', '3', '=',')'],
+              ['DEL', 'Clear', '+', '-', '\u00F7', '\u00D7']
+            ];
+          }
+        },
+        advancedKeys:{
+          type: Array,
+          value: function() {
+            return [
+              ['Gly', 'Ala', 'Ser', 'Pro', 'Val', 'H\u20820'],
+              ['Cys', 'Ile', 'Leu', 'Asn', 'Asp', 'H\u207A'],
+              ['Lys', 'Glu', 'Met', 'His', 'Phe', 'e\u207b'],
+              ['Tyr', 'Trp', 'Thr','Gln', 'Arg', '']
+            ];
+          }
+        },
+        modeKeys:{
+          type: Array,
+          value:  function() {
+            return [
+              ['Hex', 'dHex', 'NeuAc', 'Kdn', 'Sulf','Na\u207A'],
+              ['HexNAc', 'HexA', 'NeuGc', 'Pen', 'Phos','K\u207A']
+            ];
+
+          }
+        },
+
+        errorMsgs:{
+          type: Array,
+          value:function() {
+            return ['error...', 'umm...', ':-('];
+          }
+        },
+
+        responsiveWidth: {
+          type: String,
+          value: '',
+          notify: true
+        }
+      },
+
+      listners: {
+        keydown: 'keyDown',
+        keypress: 'keyPress'
+      },
+
+      attached: function() {
+        this.$.enterKey.target = document.querySelector('body');
+        this.$.clearKey .target = document.querySelector('body');
+        this.$.deleteKey.target = document.querySelector('body');
+        window.addEventListener('resize', this.updateResultInk.bind(this));
+      },
+
+      clear: function() {
+        this.expression = '';
+        this.result = '';
+        this.error = '';
+      },
+
+      del: function() {
+        this.expression = this.expression.slice(0, -1);
+      },
+
+      eval: function() {
+        this.$.math.eval();
+      },
+
+      keyTap: function(e) {
+        var k = e.detail.key;
+        this.processKey(k);
+      },
+
+      onEnter: function(e) {
+        this.processKey("=");
+        e.preventDefault();
+      },
+
+      onDel: function(e) {
+        this.processKey("DEL");
+        e.detail.keyboardEvent.preventDefault();
+      },
+
+      processKey: function(k) {
+        if (this.result && k !== '=' && k !== 'DEL') {
+          if( k === "+" || k === "\u00D7" || k === "\u00F7" || k === "-"){
+            this.result = "";
+          }else{
+            this.clear();
+          }
+        }
+
+        if (k === '=') {
+          this.updateResultInk();
+          this.async(this.eval);
+        } else if (k === 'DEL') {
+          this.del();
+        } else if (k === 'Clear') {
+          this.clear();
+        } else {
+          this.expression += k;
+        }
+      },
+
+      updateResultInk: function() {
+        var rect = this.getBoundingClientRect();
+        var keyRect = this.$.keypad.equalKey.getBoundingClientRect();
+        var s  = this.$.resultInk.style;
+        var t = keyRect.top - rect.top + keyRect.height / 2;
+        s.top = -t + 'px';
+        s.left = -t * 2 + (keyRect.left - rect.left + keyRect.width / 2) + 'px';
+        s.width = s.height = 5 * t + 'px';
+      },
+
+      resultChanged: function() {
+        if (this.result === '?') {
+          this.error = this.errorMsgs[Math.floor(Math.random() *
+                  this.errorMsgs.length)];
+        }
+      },
+
+      computeSpill: function (result) {
+        return result ? 'spill' : '';
+
+      },
+      computeError: function (error) {
+        return error ? 'error' : 'result';
+      },
+
+      computeOutputStyle: function (wideMatches, wideMode) {
+        return wideMatches || wideMode ? 'wide' : '';
+      },
+
+      computeWidemode: function (wideMatches, wideMode) {
+        return wideMatches || wideMode;
+      },
+
+      copyPress: function(e){
+        if (window.clipboardData && window.clipboardData.getData) { // IE
+          this.expression = window.clipboardData.getData('Text');
+        }
+        else if (e.originalEvent.clipboardData && e.originalEvent.clipboardData.getData) {
+          this.expression = e.originalEvent.clipboardData.getData('text/plain');
+        }
+        e.preventDefault();
+      }
+
+    });
+
+  </script>
+
+</dom-module>

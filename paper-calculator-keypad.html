@@ -6,105 +6,124 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-
+<link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="paper-calculator-keygrid.html">
 <link rel="import" href="paper-calculator-panels.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 
-<polymer-element name="paper-calculator-keypad" attributes="wideMode standardKeys advancedKeys modeKeys">
+<dom-module id="paper-calculator-keypad">
+  <style include="iron-flex iron-flex-alignment"></style>
+  <style>
 
+    :host {
+      display: block;
+      position: relative;
+      cursor: pointer;
+    }
+
+    #outerPanels {
+      width: 100%;
+      height: 100%;
+    }
+
+    #standard {
+      --keypad-background-color: #4c4c4c;
+      --keypad-font-weight: 300;
+      font-size: 2em;
+      color: #fff;
+
+    }
+
+    #standard::shadow #keys > div:nth-of-type(5) {
+      background-color: #666;
+      border-left: 1px solid #444;
+    }
+
+    .narrow #standard::shadow #keys ,
+    .narrow #standard::shadow #keys > div:nth-of-type(5) {
+      box-shadow: inset 0 12px 12px rgba(0, 0, 0, 0.25);
+      min-width: 70px;
+    }
+
+    #innerPanels {
+      height: 100%;
+    }
+
+    [drawer] {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+
+    .narrow #innerPanels::shadow #keys  {
+      box-shadow: -4px 0 4px rgba(0, 0, 0, 0.2);
+    }
+
+    #advanced {
+      --keypad-background-color: #40bd9e;
+      --keypad-font-weight: 400;
+      font-size: 1.125em;
+      color: #f7f7f7;
+    }
+
+    .narrow #advanced::shadow #keys {
+      box-shadow: inset 0 7px 7px rgba(0, 0, 0, 0.25);
+    }
+
+    #mode {
+      --keypad-background-color: #1de9b6;
+      --keypad-font-weight: 400;
+      font-size: 1em;
+      color: #777;
+    }
+
+    .narrow #mode::shadow #keys {
+      box-shadow: -4px 0 4px rgba(0, 0, 0, 0.2), inset 0 5px 5px rgba(0, 0, 0, 0.25);
+    }
+
+  </style>
   <template>
+    <paper-calculator-panels id="outerPanels" class$="{{computeStyle(wideMode)}}" margin$="{{margin}}" wide-mode$="{{wideMode}}" drawer-width-ratio="0.8" >
 
-    <style>
-    
-      :host {
-        display: block;
-        position: relative;
-        cursor: pointer;
-      }
-      
-      #outerPanels {
-        width: 100%;
-        height: 100%;
-      }
-      
-      #standard {
-        background-color: #4c4c4c;
-        font-weight: 300;
-        font-size: 2em;
-        color: #fff;
-
-      }
-      
-      #standard::shadow #keys > div:nth-of-type(4) {
-        background-color: #666;
-        border-left: 1px solid #444;
-      }
-      
-      .narrow #standard, 
-      .narrow #standard::shadow #keys > div:nth-of-type(4) {
-        box-shadow: inset 0 12px 12px rgba(0, 0, 0, 0.25);
-        min-width: 70px;
-      }
-      
-      #innerPanels {
-        background-color: #40bd9e;
-      }
-      
-      [drawer] {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-      }
-      
-      .narrow #innerPanels {
-        box-shadow: -4px 0 4px rgba(0, 0, 0, 0.2);
-      }
-      
-      #advanced {
-        background-color: #40bd9e;
-        font-weight: 400;
-        font-size: 1.125em;
-        color: #f7f7f7;
-      }
-
-      .narrow #advanced {      
-        box-shadow: inset 0 7px 7px rgba(0, 0, 0, 0.25);
-      }
-      
-      #mode {
-        background-color: #1de9b6;
-        font-weight: 400;
-        font-size: 1em;
-        color: #777;
-      }
-
-      .narrow #mode {      
-        box-shadow: -4px 0 4px rgba(0, 0, 0, 0.2), inset 0 5px 5px rgba(0, 0, 0, 0.25);
-      }
-      
-    </style>
-    
-    <paper-calculator-panels id="outerPanels" class="{{ {narrow : !wideMode} | tokenList}}" margin="{{margin}}" wideMode="{{wideMode}}" drawerWidthRatio="0.8">
-    
       <paper-calculator-keygrid id="standard" main keys="{{standardKeys}}"></paper-calculator-keygrid>
-    
-      <paper-calculator-panels id="innerPanels" drawer margin="{{margin}}" wideMode="{{wideMode}}" drawerWidthRatio="0.7">
-      
+
+      <paper-calculator-panels id="innerPanels" drawer margin$="{{margin}}" wide-mode$="{{wideMode}}" drawer-width-ratio="0.7">
+
         <paper-calculator-keygrid id ="advanced" main keys="{{advancedKeys}}"></paper-calculator-keygrid>
-        
+
         <paper-calculator-keygrid id="mode" drawer keys="{{modeKeys}}"></paper-calculator-keygrid>
-        
+
       </paper-calculator-panels>
-      
+
     </paper-calculator-panels>
-    
+
   </template>
 
   <script>
 
-    Polymer('paper-calculator-keypad', {
-      
-      margin: 26,
-      
+    Polymer({
+      id:"paper-calculator-keypad",
+
+      properties: {
+        wideMode: {
+          type: String,
+          value: null,
+          notify: true
+        },
+        standardKeys: {
+          type: Array
+        },
+        advancedKeys: {
+          type: Array
+        },
+        modeKeys: {
+          type: Array
+        },
+        margin:{
+          type: Number,
+          value: 26
+        }
+      },
+
       findKey: function(label) {
         var ps = [this.$.standard, this.$.advanced, this.$.mode];
         for (var i = 0, p; p = ps[i]; i++) {
@@ -114,13 +133,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         }
       },
-      
+
       get equalKey() {
         return this.$.standard.findKey('=');
+      },
+
+      computeStyle: function (wideMode) {
+        return wideMode == null ? 'narrow' : '';
       }
-      
     });
 
   </script>
 
-</polymer-element>
+</dom-module>

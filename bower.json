@@ -1,14 +1,19 @@
 {
-  "name": "paper-calculator",
-  "private": true,
+  "name": "swissmass-abacus",
+  "main": "swissmass-abacus.html",
   "ignore": [
     "**/.*",
     "bower_components"
   ],
   "dependencies": {
-    "core-media-query": "Polymer/core-media-query#master",
-    "font-roboto": "Polymer/font-roboto#master",
-    "paper-ripple": "Polymer/paper-ripple#master",
-    "polymer": "Polymer/polymer#^0.5.0"
+    "paper-ripple": "PolymerElements/paper-ripple#^1.0.5",
+    "polymer": "Polymer/polymer#^1.5.0",
+    "iron-media-query": "PolymerElements/iron-media-query#^1.0.8",
+    "paper-styles": "PolymerElements/paper-styles#^1.1.4",
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.3.1",
+    "paper-button": "PolymerElements/paper-button#^1.0.12",
+    "webcomponentsjs": "^0.7.22",
+    "iron-a11y-keys": "PolymerElements/iron-a11y-keys#^1.0.5",
+    "paper-input": "PolymerElements/paper-input#^1.1.11"
   }
 }

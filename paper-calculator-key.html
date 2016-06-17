@@ -6,95 +6,94 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-
+<link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-ripple/paper-ripple.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 
-<polymer-element name="paper-calculator-key" on-down="{{downAction}}" on-up="{{upAction}}">
+<dom-module id="paper-calculator-key">
 
+  <style include="iron-flex iron-flex-alignment"></style>
+  <style>
+
+    :host {
+      display: block;
+      position: relative;
+    }
+
+    #keyLabel, .ink-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    #keyLabel {
+      pointer-events: none;
+    }
+
+
+    #ink {
+      --paper-button-ink-color: rgb(241, 250, 65);
+      text-transform: none;
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .small {
+      font-size: smaller;
+    }
+
+  </style>
   <template>
-
-    <style>
-
-      :host {
-        display: block;
-        position: relative;
-      }
-
-      #keyLabel, .ink-container {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-      }
-
-      #keyLabel {
-        pointer-events: none;
-      }
-
-      .ink-center {
-        position: relative;
-        width: 0;
-        height: 0;
-      }
-
-      #ink {
-        position: absolute;
-        top: -30px;
-        left: -30px;
-        width: 60px;
-        height: 60px;
-        color: rgb(241, 250, 65);
-        pointer-events: none;
-      }
-
-      .small {
-        font-size: smaller;
-      }
-
-    </style>
-
-    <div class="ink-container" horizontal center-justified center layout>
-      <div class="ink-center">
-        <paper-ripple id="ink" class="circle recenteringTouch" initialOpacity="0.85" opacityDecayVelocity="2"></paper-ripple>
-      </div>
+    <div id="keyLabel" class="horizontal center-justified center layout">
+      <paper-button id="ink">{{label}}</paper-button>
     </div>
-
-    <div id="keyLabel" horizontal center-justified center layout>{{label}}</div>
-
   </template>
 
   <script>
+    Polymer({
 
-    Polymer('paper-calculator-key', {
+      is:"paper-calculator-key",
 
-      publish: {
-        label: {reflect: true}
+      properties:{
+        label:{
+          type:String,
+          notify: true,
+          reflectToAttribute: true,
+          observer: "labelChanged"
+        }
+      },
+      listeners: {
+        down: 'downAction',
+        up: 'upAction'
+      },
+      labelChanged: function () {
+        Polymer.dom(this.$.ink).classList.toggle('small', this.label === 'DEL' || this.label === 'Clear');
       },
 
-      labelChanged: function() {
-        this.$.keyLabel.classList.toggle('small', this.label === 'DEL' || this.label === 'Clear');
+      downAction: function (e) {
+        this.$.ink.getRipple().downAction(e);
+      },
+      upAction: function () {
+        this.$.ink.getRipple().upAction();
       },
 
-      downAction: function(e) {
-        this.$.ink.downAction(e);
-      },
-
-      upAction: function() {
-        this.$.ink.upAction();
-      },
-
-      cancelKey: function(e) {
+      //toFix! key has to be changed!
+      cancelKey: function (e) {
         e.preventTap();
         this.resetInk();
       },
+      //
 
-      resetInk: function() {
-        this.$.ink.cancel();
+      resetInk: function () {
+        this.$.ink.getRipple().cancel();
       }
 
     });
 
   </script>
 
-</polymer-element>
+</dom-module>

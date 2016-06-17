@@ -9,11 +9,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../polymer/polymer.html">
 
-<polymer-element name="paper-calculator-math" attributes="expression result">
+<dom-module id="paper-calculator-math">
 
   <script>
+    Polymer({
 
-    Polymer('paper-calculator-math', {
+      is:"paper-calculator-math",
+
+      properties:{
+        expression: {
+          type: String,
+          notify: true
+        },
+        result: {
+          type: String,
+          notify: true
+        }
+      },
 
       dictionary : {
         'A' : 71.037114,
@@ -70,18 +82,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         'H2O': 18.010565,
         'PROTON': 1.00727647,
         'ELECTRON': 0.000548579909,
+        'KPLUS': 38.963707,
+        'NAPLUS': 22.989768,
         'ZERO': 0
       },
+
 
 
       eval: function() {
         var s = this.expression;
         s = s.replace(/\u00D7/g, '*')
                 .replace(/\u00F7/g, '/')
-                .replace('H\u20820',"Water")
+                .replace('H\u20820',"water")
                 .replace("H\u207A", 'proton')
                 .replace('e\u207b',"electron")
-                .replace('h2o',"water");
+                .replace('h2o',"water")
+                .replace('K\u207A',"kplus")
+                .replace('Na\u207A',"naplus");
 
         var interpExp = "";
         var notInterSymbol = "";
@@ -132,4 +149,4 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </script>
 
-</polymer-element>
+</dom-module>

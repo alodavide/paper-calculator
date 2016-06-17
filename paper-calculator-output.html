@@ -8,110 +8,170 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../paper-styles/paper-styles.html">
+<link rel="import" href="../paper-input/paper-input.html">
 
-<polymer-element name="paper-calculator-output" attributes="expression result error">
+<dom-module id="paper-calculator-output">
+  <style include="iron-flex iron-flex-alignment"></style>
+  <style>
 
-  <template>
+    :host {
+      display: block;
+    }
 
-    <style>
+    .output {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      padding-right: 30px;
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      background-color: transparent;
+      color: #000;
+      overflow: hidden;
+    }
 
-      :host {
-        display: block;
-      }
+    .output.show-result {
+      color: #eee;
+    }
 
-      .output {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        padding-right: 30px;
-        box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        background-color: transparent;
-        color: #000;
-        overflow: hidden;
-      }
+    .expression-outer {
+      width: 100%;
+      height: 100%;
 
-      .output.show-result {
-        color: #eee;
-      }
+      text-align: right;
+      overflow: hidden;
+    }
 
-      .expression-outer {
-        width: 100%;
-        height: 100%;
-        font-size: 2.5em;
-        font-weight: 200;
+    .show-result > .expression-outer {
+      height: 38%;
+    }
+
+    paper-input.expressionInput {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+      @apply(--layout-end-justified);
+      @apply(--layout-flex);
+
+      --paper-input-container:{
+        width:100%;
+      };
+
+      --paper-input-container-underline:{
+        background: transparent;
+      };
+      --paper-input-container-underline-focus:{
+        background: transparent;
+      };
+      --paper-input-container-input: {
+        font-size: 2.0em;
+        font-weight: 300;
         text-align: right;
-        overflow: hidden;
-      }
 
-      .show-result > .expression-outer {
-        height: 38%;
-        font-size: 1.5em;
-        font-weight: 400;
-      }
+      };
 
-      #expression {
-        white-space: nowrap;
-      }
+    }
 
-      .output.error #expression {
-        display: none;
-      }
+    #expression {
+      font-weight: 200;
+      height: 100%;
+    }
 
-      #error {
-        display: none;
-        color: #eee;
-      }
+    .output.error #expression {
+      display: none;
+    }
 
-      .output.error #error {
-        display: block;
-      }
+    #error {
+      font-size: 2.5em;
+      display: none;
+      color: #eee;
+    }
 
-      .result {
-        visibility: hidden;
-      }
+    .output.error #error {
+      display: block;
+    }
 
-      .show-result > .result {
-        visibility: visible;
-        height: 62%;
-        font-weight: 400;
+    .result {
+      visibility: hidden;
+    }
 
-      }
+    .show-result > .result {
+      visibility: visible;
+      height: 62%;
+      font-weight: 400;
 
-      .result-equal {
-        padding: 0 30px;
-        font-size: 1.5em;
-      }
+    }
 
-      .result-value {
-        font-size: 2.5em;
-        overflow: hidden;
-      }
+    .result-equal {
+      padding: 0 30px;
+      font-size: 1.5em;
+    }
 
-    </style>
+    paper-input.result-value {
+      --paper-input-container-underline-disabled:{
+        border-color: transparent;
+        border-bottom: 0px;
+      };
+      --paper-input-container-disabled:{
+        opacity: 1;
+        font-size: large;
+      };
+      --paper-input-container-input:{
+        color: white;
+        font-size: 2em;
+        font-weight: 300;
+        text-align: right;
+      };
 
-    <div class="output {{ {error: error, 'show-result': result && !error } | tokenList }}">
+    }
 
-      <div class="expression-outer" horizontal end-justified center layout>
-        <div id="expression">{{expression}}</div>
+    .long {
+      width:100%;
+    }
+
+  </style>
+  <template>
+    <div id="mainContainerResult" class$="output {{conditionalError(error)}} {{conditionalResult(result,error)}}">
+
+      <div class="expression-outer horizontal end-justified center layout">
+        <div id="expression" class="flex horizontal end-justified layout"><paper-input class="expressionInput long"  value="{{expression}}"></paper-input></div>
         <div id="error">{{error}}</div>
       </div>
 
-      <div class="result" horizontal center layout>
-
+      <div class="result horizontal center layout">
         <div class="result-equal">=</div>
-        <div class="result-value" flex horizontal end-justified layout >{{result}}</div>
-
+          <paper-input class="result-value long" disabled value="{{result}}"></paper-input>
       </div>
-
     </div>
-
   </template>
-
   <script>
+    Polymer({
+      is: 'paper-calculator-output',
+      properties: {
+        error: {
+          type: String,
+          notify: true,
+        },
+        expression: {
+          type: String,
+          notify: true
+        },
+        result: {
+          type: String,
+          notify: true,
+        }
+      },
 
-    Polymer('paper-calculator-output');
+      conditionalError: function(error) {
+        return error ? 'error' : '';
+      },
 
+      conditionalResult: function(result,error) {
+        return (result && !error) ? 'show-result' : '';
+      },
+
+    });
   </script>
 
-</polymer-element>
+</dom-module>

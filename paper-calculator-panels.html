@@ -6,158 +6,181 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
 
-<link rel="import" href="../core-media-query/core-media-query.html">
+<dom-module id="paper-calculator-panels" >
 
-<polymer-element name="paper-calculator-panels" attributes="drawerWidthRatio opened margin wideMode responsiveWidth">
+  <style>
 
+    :host {
+      display: block;
+      overflow: hidden;
+    }
+
+    #panelContainer {
+      display: block;
+      position: relative;
+      height: 100%;
+    }
+
+    #main {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    #panelContainer.wide-layout > #main {
+      right: auto;
+    }
+
+    #drawer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 100%;
+      transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
+      transition: -webkit-transform 0.13s linear;
+      transition: transform 0.13s linear;
+    }
+
+    #drawer.dragging {
+      transition: none;
+    }
+
+    polyfill-next-selector { content: '#main > *, #drawer > *'; }
+    ::content > * {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+  </style>
   <template>
-    
-    <style>
-    
-      :host {
-        display: block;
-        overflow: hidden;
-      }
-      
-      #panelContainer {
-        display: block;
-        position: relative;
-        height: 100%;
-      }
-      
-      #main {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-      }
-      
-      #panelContainer.wide-layout > #main {
-        right: auto;
-      }
-      
-      #drawer {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 100%;
-        transform: translate3d(0, 0, 0);
-        -webkit-transform: translate3d(0, 0, 0);
-        transition: -webkit-transform 0.13s linear;
-        transition: transform 0.13s linear;
-      }
-      
-      #drawer.dragging {
-        transition: none;
-      }
-      
-      polyfill-next-selector { content: '#main > *, #drawer > *'; }
-      ::content > * {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-      }
-      
-    </style>
-    
-    <div id="panelContainer" class="{{wideMode ? 'wide-layout' : ''}}">
-    
+    <div id="panelContainer" class$="{{computeStyle(wideMode)}}">
+
       <div id="main">
         <content select="[main]"></content>
       </div>
-      
-      <div id="drawer" on-trackstart="{{trackStart}}" on-trackx="{{trackx}}" on-trackend="{{trackEnd}}">
+
+      <div id="drawer"  on-track="handleTrack">
         <content select="[drawer]"></content>
       </div>
-    
+
     </div>
-    
-    <core-media-query query="min-width: {{responsiveWidth}}" queryMatches="{{wideMode}}"></core-media-query>
-    
+
+    <iron-media-query query="(min-width: 800px)" query-matches="{{wideMode}}"></iron-media-query>
+
   </template>
-  
+
   <script>
-  
-    Polymer('paper-calculator-panels', {
-      
-      wideMode: false,
-      responsiveWidth: '',
-      margin: 10,
-      drawerWidthRatio: 0,
-      opened: false,
-      
-      observe: {
-        wideMode: 'updateSize',
-        drawerWidthRatio: 'updateSize'
+
+    Polymer({
+      is:"paper-calculator-panels",
+      properties:{
+        drawerWidthRatio: {
+          type: Number,
+          value: 0,
+          notify: true,
+          observer: 'updateSize'
+        },
+        margin: {
+          type: Number,
+          value: 10,
+          notify: true,
+          observer: 'marginChanged'
+        },
+        opened: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          observer: 'openedChanged'
+        },
+        responsiveWidth: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        wideMode: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          observer: 'updateSize'
+        }
       },
-      
+
       marginChanged: function() {
-        this.$.panelContainer.style.width = 'calc(100% - ' + 
-            (this.wideMode ? 0 : this.margin) + 'px)';
+        this.$.panelContainer.style.width = 'calc(100% - ' +
+                (this.wideMode ? 0 : this.margin) + 'px)';
       },
-      
+
       updateSize: function() {
         var w = 1 / (1 + this.drawerWidthRatio) * 100;
-        this.$.main.style.width = this.$.drawer.style.left = 
-            this.wideMode ? w + '%' : '';
-        this.$.drawer.style.width = this.wideMode ? 
-            100 - w + '%' : this.drawerWidthRatio * 100 + '%';
+        this.$.main.style.width = this.$.drawer.style.left =
+                this.wideMode ? w + '%' : '';
+        this.$.drawer.style.width = this.wideMode ?
+        100 - w + '%' : this.drawerWidthRatio * 100 + '%';
         this.opened = false;
         this.marginChanged();
       },
-      
+
       openedChanged: function() {
-        this.positionDrawer(this.opened ? 
-            'calc(' + this.margin + 'px - 100%)' : null);
+        this.positionDrawer(this.opened ?
+        'calc(' + this.margin + 'px - 100%)' : null);
       },
-      
+
       positionDrawer: function(x) {
         var s = this.$.drawer.style;
         s.webkitTransform = s.transform = x ? 'translate3d(' + x + ', 0, 0)' : '';
       },
-      
-      trackStart: function(e) {
-        if (this.wideMode) {
-          return;
+
+      handleTrack: function(e) {
+        switch(e.detail.state) {
+          case 'start':
+            if (this.wideMode) {
+              return;
+            }
+            var w = this.$.drawer.offsetWidth;
+            var m = this.margin;
+            this._startx = this.opened ? m - w : 0;
+            this._min = this.opened ? 0 : m - w;
+            this._max = this.opened ? w - m : 0;
+            Polymer.dom(this.$.drawer).classList.add('dragging');
+            e.preventDefault();
+            e.stopPropagation();
+            break;
+          case 'track':
+            if (this.wideMode) {
+              return;
+            }
+            var x = Math.max(this._min, Math.min(this._max, e.detail.dx));
+            this.positionDrawer(this._startx + x + 'px');
+            e.stopPropagation();
+            break;
+          case 'end':
+            if (this.wideMode) {
+              return;
+            }
+            Polymer.dom(this.$.drawer).classList.remove('dragging');
+            var old = this.opened;
+            this.opened = e.detail.dx < 0;
+            if (old == this.opened) {
+              this.openedChanged();
+            }
+            e.stopPropagation();
+            break;
         }
-        var w = this.$.drawer.offsetWidth;
-        var m = this.margin;
-        this._startx = this.opened ? m - w : 0;
-        this._min = this.opened ? 0 : m - w;
-        this._max = this.opened ? w - m : 0;
-        this.$.drawer.classList.add('dragging');
-        e.preventTap();
-        e.stopPropagation();
       },
-      
-      trackx: function(e) {
-        if (this.wideMode) {
-          return;
-        }
-        var x = Math.max(this._min, Math.min(this._max, e.dx));
-        this.positionDrawer(this._startx + x + 'px');
-        e.stopPropagation();
-      },
-      
-      trackEnd: function(e) {
-        if (this.wideMode) {
-          return;
-        }
-        this.$.drawer.classList.remove('dragging');
-        var old = this.opened;
-        this.opened = e.xDirection === -1;
-        if (old == this.opened) {
-          this.openedChanged();
-        }
-        e.stopPropagation();
+      computeStyle: function (wideMode) {
+        return wideMode ? 'wide-layout' : '';
       }
-      
     });
-    
+
   </script>
-  
-</polymer-element>
+
+</dom-module>

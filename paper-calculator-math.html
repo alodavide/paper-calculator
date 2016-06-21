@@ -90,15 +90,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
       eval: function() {
+
+
         var s = this.expression;
         s = s.replace(/\u00D7/g, '*')
                 .replace(/\u00F7/g, '/')
-                .replace('H\u20820',"water")
-                .replace("H\u207A", 'proton')
-                .replace('e\u207b',"electron")
-                .replace('h2o',"water")
-                .replace('K\u207A',"kplus")
-                .replace('Na\u207A',"naplus");
+                .replace(new RegExp('H\u20820', 'g'),"water")
+                .replace(new RegExp("H\u207A", 'g'),"proton")
+                .replace(new RegExp('e\u207b', 'g'),"electron")
+                .replace(new RegExp('h2o', 'g'),"water")
+                .replace(new RegExp('K\u207A', 'g'),"kplus")
+                .replace(new RegExp('Na\u207A', 'g'),"naplus");
 
         var interpExp = "";
         var notInterSymbol = "";
@@ -125,7 +127,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         try {
-          this.result = eval(interpExp).toFixed(4);
+          var container = eval(interpExp);
+          if(container % 1 === 0){
+            this.result = container.toString();
+          } else {
+            this.result = container.toFixed(4);
+          }
         } catch (x) {
           this.result = '?';
         }

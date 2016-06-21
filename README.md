@@ -1,2 +1,2 @@
-paper-calculator
+Swiss Mass Abacus
 ================

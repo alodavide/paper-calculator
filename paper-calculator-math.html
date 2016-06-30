@@ -106,24 +106,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var notInterSymbol = "";
         for (var pointer = 0, len = s.length; pointer < len; pointer++) {
           var char = s[pointer];
-          if(char === "+" || char === "-" || char === "*" || char === "/" || char === "(" || char === ")" || char ==="." ){
+          if(char === "+" || char === "-" || char === "*" || char === "/" || char === "(" || char === ")"){
             if(notInterSymbol && isNaN(notInterSymbol)){
-              interpExp += this._translateToMass(notInterSymbol);
+              interpExp = interpExp.concat(this._translateToMass(notInterSymbol));
               notInterSymbol="";
             }
 
             if(notInterSymbol && !isNaN(notInterSymbol)){
-              interpExp += notInterSymbol;
+              interpExp = interpExp.concat(notInterSymbol);
               notInterSymbol="";
             }
-            interpExp += char;
+            interpExp = interpExp.concat(char);
           } else{
-            notInterSymbol += char;
+            notInterSymbol = notInterSymbol.concat(char);
           }
         }
 
         if(notInterSymbol){
-          interpExp += this._translateToMass(notInterSymbol);
+          interpExp = interpExp.concat(this._translateToMass(notInterSymbol));
         }
 
         try {
